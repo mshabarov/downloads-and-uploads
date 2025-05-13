@@ -1,7 +1,13 @@
 package com.vaadin.example;
 
+import com.vaadin.flow.component.UI;
+import com.vaadin.flow.component.notification.Notification;
 import com.vaadin.flow.component.page.AppShellConfigurator;
 import com.vaadin.flow.component.page.Push;
+import com.vaadin.flow.server.ErrorEvent;
+import com.vaadin.flow.server.ErrorHandler;
+import com.vaadin.flow.server.ServiceInitEvent;
+import com.vaadin.flow.server.VaadinServiceInitListener;
 import com.vaadin.flow.theme.Theme;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
@@ -17,6 +23,17 @@ public class Application implements AppShellConfigurator {
     @Bean
     public Clock clock() {
         return Clock.systemDefaultZone(); // You can also use Clock.systemUTC()
+    }
+
+    @Bean
+    public VaadinServiceInitListener vaadinServiceInitListener() {
+        return event -> event.getSource().addSessionInitListener(e ->
+                e.getSession().setErrorHandler(error -> {
+                    if (UI.getCurrent() != null) {
+                        UI.getCurrent().access(() ->
+                                Notification.show("Error: " + error.getThrowable().getMessage()));
+                    }
+                }));
     }
 
     public static void main(String[] args) {
