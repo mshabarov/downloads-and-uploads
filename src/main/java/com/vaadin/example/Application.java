@@ -25,17 +25,6 @@ public class Application implements AppShellConfigurator {
         return Clock.systemDefaultZone(); // You can also use Clock.systemUTC()
     }
 
-    @Bean
-    public VaadinServiceInitListener vaadinServiceInitListener() {
-        return event -> event.getSource().addSessionInitListener(e ->
-                e.getSession().setErrorHandler(error -> {
-                    if (UI.getCurrent() != null) {
-                        UI.getCurrent().access(() ->
-                                Notification.show("Error: " + error.getThrowable().getMessage()));
-                    }
-                }));
-    }
-
     public static void main(String[] args) {
         SpringApplication.run(Application.class, args);
     }

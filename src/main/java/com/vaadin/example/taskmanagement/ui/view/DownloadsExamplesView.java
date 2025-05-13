@@ -33,7 +33,7 @@ import com.vaadin.flow.server.streams.DownloadHandler;
 import com.vaadin.flow.server.streams.DownloadResponse;
 
 
-@Route("downloads-examples")
+@Route("")
 @PageTitle("Downloads")
 @Menu(order = 0, icon = "vaadin:download", title = "Download Examples")
 @PermitAll
