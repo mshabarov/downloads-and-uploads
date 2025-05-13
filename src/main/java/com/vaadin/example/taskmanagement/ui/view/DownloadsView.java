@@ -5,6 +5,9 @@ import com.flowingcode.vaadin.addons.syntaxhighlighter.ShLanguage;
 import com.flowingcode.vaadin.addons.syntaxhighlighter.ShStyle;
 import com.flowingcode.vaadin.addons.syntaxhighlighter.SyntaxHighlighter;
 import jakarta.annotation.security.PermitAll;
+
+import com.vaadin.example.taskmanagement.domain.Attachment;
+import com.vaadin.example.taskmanagement.domain.AttachmentRepository;
 import com.vaadin.flow.component.html.Anchor;
 import com.vaadin.flow.component.html.Image;
 import com.vaadin.flow.component.notification.Notification;
@@ -13,6 +16,7 @@ import com.vaadin.flow.router.Menu;
 import com.vaadin.flow.router.PageTitle;
 import com.vaadin.flow.router.Route;
 import com.vaadin.flow.server.streams.DownloadHandler;
+import com.vaadin.flow.server.streams.DownloadResponse;
 
 
 @Route("syntax-highlighter")
@@ -21,28 +25,57 @@ import com.vaadin.flow.server.streams.DownloadHandler;
 @PermitAll
 public class DownloadsView extends VerticalLayout {
 
-    public DownloadsView() {
+    public DownloadsView(AttachmentRepository attachmentRepository) {
         createCodeSnippetFor("""
 // Show an image from class path resources
-Image logo = new Image(DownloadHandler.forClassResource(
+var logo = new Image(DownloadHandler.forClassResource(
 DownloadsView.class, "vaadin.jpeg"), "Vaadin logo");""");
 
-        Image logo = new Image(DownloadHandler.forClassResource(
+        var logo = new Image(DownloadHandler.forClassResource(
                 DownloadsView.class, "vaadin.jpeg"), "Vaadin logo");
         add(logo);
 
         createCodeSnippetFor("""
 // Download a file from disk
-Anchor download = new Anchor(DownloadHandler.forFile(new File("/Users/mikhail/Documents/terms-of-service.md"))
+var download = new Anchor(DownloadHandler.forFile(new File("/Users/mikhail/Documents/terms-of-service.md"))
         .whenComplete(success -> Notification.show("Success: " + success)),
                 "Download terms of service");
 """);
 
         // Download a File and show a notification when completed (requires @Push)
-        Anchor download = new Anchor(DownloadHandler.forFile(new File("/Users/mikhail/Documents/terms-of-service.md"))
+        var download = new Anchor(DownloadHandler.forFile(new File("/Users/mikhail/Documents/terms-of-service.md"))
                 .whenComplete(success -> Notification.show("Success: " + success)),
                 "Download terms of service");
         add(download);
+
+        createCodeSnippetFor("""
+long attachmentId = getAttachmentId();
+var downloadAttachment = new Anchor(DownloadHandler.fromInputStream((event) -> {
+    try {
+        Attachment attachment = attachmentRepository.findById(attachmentId);
+        return new DownloadResponse(attachment.getData().getBinaryStream(),
+                attachment.getName(), attachment.getMime(), attachment.getSize());
+    } catch (Exception e) {
+        return DownloadResponse.error(500);
+    }
+}, "task-attachment-" + attachmentId + ".txt"), "Download task attachment");
+                """);
+
+        long attachmentId = getAttachmentId();
+        var downloadAttachment = new Anchor(DownloadHandler.fromInputStream((event) -> {
+            try {
+                Attachment attachment = attachmentRepository.findById(attachmentId);
+                return new DownloadResponse(attachment.getData().getBinaryStream(),
+                        attachment.getName(), attachment.getMime(), attachment.getSize());
+            } catch (Exception e) {
+                return DownloadResponse.error(500);
+            }
+        }, "task-attachment-" + attachmentId + ".txt"), "Download task attachment");
+        add(downloadAttachment);
+    }
+
+    private long getAttachmentId() {
+        return 1L;
     }
 
     private void createCodeSnippetFor(String code) {
