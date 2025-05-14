@@ -1,0 +1,288 @@
+= DownloadHandler API Documentation
+:toc: left
+:toclevels: 3
+:sectnums:
+:source-highlighter: highlight.js
+
+== Introduction
+
+The `DownloadHandler` API provides a flexible and powerful way to implement file downloads from server to browser in Vaadin applications. This API supports various download scenarios, from simple file downloads to complex streaming with progress tracking.
+
+This documentation covers the main features of the `DownloadHandler` API, including:
+
+* Static helper methods for common download scenarios
+* Download progress tracking
+* Creating custom download handlers
+* Low-level API features
+
+== Static Helper Methods
+
+The `DownloadHandler` API provides several static helper methods to simplify common download scenarios.
+
+=== forClassResource
+
+The `forClassResource` method allows you to serve resources from the classpath.
+
+[source,java]
+----
+var logo = new Image(DownloadHandler.forClassResource(
+        DownloadsExamplesView.class, "vaadin.jpeg"), "Vaadin logo");
+----
+
+This method is useful for serving static resources like images, CSS, or JavaScript files that are packaged with your application.
+
+=== forFile
+
+The `forFile` method allows you to serve files from the file system.
+
+[source,java]
+----
+var download = new Anchor(DownloadHandler.forFile(new File("/path/to/file.md"))
+        .whenComplete(success -> Notification.show("Success: " + success)),
+        "Download file");
+----
+
+This method is useful for serving files that are stored on the server's file system.
+
+=== fromInputStream
+
+The `fromInputStream` method allows you to serve content from any `InputStream`. This is the most flexible helper method as it can be used with any data source that can provide an `InputStream`.
+
+[source,java]
+----
+var downloadAttachment = new Anchor(DownloadHandler.fromInputStream((event) -> {
+    try {
+        Attachment attachment = attachmentRepository.findById(attachmentId);
+        return new DownloadResponse(attachment.getData().getBinaryStream(),
+                attachment.getName(), attachment.getMime(), attachment.getSize());
+    } catch (Exception e) {
+        return DownloadResponse.error(500);
+    }
+}, "file.txt"), "Download attachment");
+----
+
+This method is particularly useful for:
+
+* Serving content from databases
+* Generating dynamic content
+* Streaming large files
+
+== Download Progress Listeners
+
+The `DownloadHandler` API provides two ways to track download progress:
+
+1. Using the fluent API with shorthand methods
+2. Implementing the `TransferProgressListener` interface
+
+=== Fluent API for Progress Tracking
+
+The fluent API provides a concise way to track download progress using method chaining.
+
+[source,java]
+----
+InputStreamDownloadHandler handler = DownloadHandler.fromInputStream(event ->
+        new DownloadResponse(getInputStream(), "download.bin",
+            "application/octet-stream", contentSize))
+    .whenStart(() -> {
+        Notification.show("Download started", 3000, Notification.Position.BOTTOM_START);
+        progressBar.setVisible(true);
+    })
+    .onProgress((transferred, total) -> progressBar.setValue((double) transferred / total))
+    .whenComplete(success -> {
+        progressBar.setVisible(false);
+        if (success) {
+            Notification.show("Download completed", 3000, Notification.Position.BOTTOM_START)
+                .addThemeVariants(NotificationVariant.LUMO_SUCCESS);
+        } else {
+            Notification.show("Download failed", 3000, Notification.Position.BOTTOM_START)
+                    .addThemeVariants(NotificationVariant.LUMO_ERROR);
+        }
+    });
+----
+
+The fluent API provides the following methods:
+
+* `whenStart(Runnable)`: Called when the download starts
+* `onProgress(BiConsumer<Long, Long>)`: Called during the download with transferred and total bytes
+* `whenComplete(Consumer<Boolean>)`: Called when the download completes with a success flag
+
+=== TransferProgressListener Interface
+
+For more control over download progress tracking, you can implement the `TransferProgressListener` interface.
+
+[source,java]
+----
+InputStreamDownloadHandler handler = DownloadHandler.fromInputStream(event ->
+        new DownloadResponse(getInputStream(), "download.bin",
+            "application/octet-stream", contentSize),
+        "download.bin", new TransferProgressListener() {
+    @Override
+    public void onStart(TransferContext context) {
+        Notification.show("Download started for file " + context.fileName(),
+                3000, Notification.Position.BOTTOM_START);
+        progressBar.setVisible(true);
+    }
+
+    @Override
+    public void onProgress(TransferContext context, long transferredBytes,
+                             long totalBytes) {
+        progressBar.setValue((double) transferredBytes / totalBytes);
+    }
+
+    @Override
+    public void onError(TransferContext context, IOException reason) {
+        progressBar.setVisible(false);
+        Notification.show("Download failed, reason: " + reason.getMessage(),
+                3000, Notification.Position.BOTTOM_START);
+    }
+
+    @Override
+    public void onComplete(TransferContext context, long transferredBytes) {
+        progressBar.setVisible(false);
+        Notification.show("Download completed, total bytes " + transferredBytes,
+                        3000, Notification.Position.BOTTOM_START);
+    }
+
+    @Override
+    public long progressReportInterval() {
+        return 1024 * 1024 * 2; // 2 MB
+    }
+});
+----
+
+The `TransferProgressListener` interface provides the following methods:
+
+* `onStart(TransferContext)`: Called when the download starts
+* `onProgress(TransferContext, long, long)`: Called during the download with transferred and total bytes
+* `onError(TransferContext, IOException)`: Called when the download fails with an exception
+* `onComplete(TransferContext, long)`: Called when the download completes with the total transferred bytes
+* `progressReportInterval()`: Defines how often progress updates are sent (in bytes)
+
+The `TransferContext` provides information about the download, such as the filename.
+
+== Custom Download Handlers
+
+For more complex download scenarios, you can create custom download handlers by implementing the `DownloadHandler` interface or extending existing implementations.
+
+=== Implementing DownloadHandler Interface
+
+You can implement the `DownloadHandler` interface to create a custom download handler.
+
+[source,java]
+----
+Anchor downloadLink = new Anchor(new DownloadHandler() {
+    @Override
+    public void handleDownloadRequest(DownloadEvent event) {
+        // Custom download handling logic
+    }
+
+    @Override
+    public String getUrlPostfix() {
+        return "custom-download.txt";
+    }
+}, "Download me!");
+----
+
+=== Custom Download Handler Example
+
+Here's an example of a custom download handler that adds MD5 validation:
+
+[source,java]
+----
+LinkWithM5Validation link = new LinkWithM5Validation(event -> {
+    try {
+        var data = loadFileFromS3(event.getFileName(), event.getContentType());
+        MessageDigest md5 = MessageDigest.getInstance("MD5");
+        byte[] digest = md5.digest(data);
+        String base64Md5 = Base64.getEncoder().encodeToString(digest);
+        event.getResponse().setHeader("Content-MD5", base64Md5);
+        event.getResponse().getOutputStream().write(data);
+        event.getUI().access(() -> Notification.show(
+                "Download completed, number of downloads: " +
+                    numberOfDownloads.incrementAndGet()));
+        event.getSession().setAttribute("downloads-number-" + event.getFileName(),
+                    numberOfDownloads.get());
+    } catch (NoSuchAlgorithmException | IOException e) {
+        event.getResponse().setStatus(500);
+    }
+}, "Download from S3");
+----
+
+This example shows how to:
+
+* Load data from an external source (S3)
+* Calculate and set an MD5 checksum header
+* Write data directly to the response output stream
+* Update the UI after the download completes
+* Store download statistics in the session
+
+== Low-Level API
+
+The `DownloadHandler` API provides several low-level features for advanced use cases.
+
+=== Inert Property
+
+The `inert` property controls whether the download should be handled in an "inert" way, meaning it doesn't affect the UI state.
+
+[source,java]
+----
+Anchor downloadLink = new Anchor(new DownloadHandler() {
+    @Override
+    public void handleDownloadRequest(DownloadEvent event) {
+        // download handling...
+    }
+
+    @Override
+    public boolean allowInert() {
+        return inertToggle.getValue();
+    }
+
+    @Override
+    public String getUrlPostfix() {
+        return "download.txt";
+    }
+}, "Download me!");
+----
+
+When `allowInert()` returns `true`, the download doesn't affect the UI state, allowing the user to continue interacting with the application during the download.
+
+=== Disabled Update Mode
+
+The `DisabledUpdateMode` controls whether downloads are allowed when the owner component is disabled.
+
+[source,java]
+----
+@Override
+public DisabledUpdateMode getDisabledUpdateMode() {
+    return allowDisabledToggle.getValue() ? DisabledUpdateMode.ALWAYS :
+            DisabledUpdateMode.ONLY_WHEN_ENABLED;
+}
+----
+
+The available modes are:
+
+* `ONLY_WHEN_ENABLED`: Download handling is rejected when the owner component is disabled (default)
+* `ALWAYS`: Download handling is allowed even when the owner component is disabled
+
+=== URL Postfix
+
+The `getUrlPostfix()` method allows you to specify a custom URL postfix for the download link.
+
+[source,java]
+----
+@Override
+public String getUrlPostfix() {
+    return "custom-download.txt";
+}
+----
+
+This is useful for:
+
+* Providing a meaningful filename in the browser's download dialog
+* Helping browsers determine the file type based on the extension
+
+== Conclusion
+
+The `DownloadHandler` API provides a flexible and powerful way to implement file downloads in Vaadin applications. From simple static file downloads to complex streaming with progress tracking, the API offers a solution for virtually any download scenario.
+
+By using the appropriate helper methods, progress listeners, and low-level features, you can create a seamless download experience for your users while maintaining full control over the download process.
