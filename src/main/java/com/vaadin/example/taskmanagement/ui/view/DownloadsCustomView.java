@@ -54,8 +54,13 @@ LinkWithM5Validation link = new LinkWithM5Validation(event -> {
         event.getUI().access(() -> Notification.show(
                 "Download from S3 completed, number of downloads: " +\s
                     numberOfDownloads.incrementAndGet()));
-        event.getSession().setAttribute("downloads-number-" + event.getFileName(),\s
+        event.getSession().lock();
+        try {
+            event.getSession().setAttribute("downloads-number-" + event.getFileName(),
                     numberOfDownloads.get());
+        } finally {
+            event.getSession().unlock();
+        }
     } catch (NoSuchAlgorithmException | IOException e) {
         event.getResponse().setStatus(500);
     }
