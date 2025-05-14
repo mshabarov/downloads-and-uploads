@@ -31,7 +31,7 @@ import com.vaadin.flow.server.streams.DownloadHandler;
 
 @Route("download-other")
 @PageTitle("Downloads Other")
-@Menu(order = 2, icon = "vaadin:cloud-download", title = "Download Other")
+@Menu(order = 3, icon = "vaadin:cloud-download", title = "Download Other")
 @PermitAll
 public class DownloadsOtherView extends VerticalLayout {
 

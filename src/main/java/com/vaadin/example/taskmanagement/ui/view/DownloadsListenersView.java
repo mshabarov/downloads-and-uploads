@@ -38,8 +38,9 @@ public class DownloadsListenersView extends VerticalLayout {
     public DownloadsListenersView() {
         Card card = createCodeSnippetFor("Downloads", "Use shortcut methods for download progress listening",
                 """
-InputStreamDownloadHandler handler = DownloadHandler.fromInputStream(event -> new DownloadResponse(
-                getSlowInputStream(), "slow-download.bin", "application/octet-stream", SLOW_CONTENT_SIZE)) // 10 MB
+InputStreamDownloadHandler handler = DownloadHandler.fromInputStream(event ->
+                new DownloadResponse(getSlowInputStream(), "slow-download.bin",
+                    "application/octet-stream", SLOW_CONTENT_SIZE)) // 10 MB
         .whenStart(() -> {
             Notification.show("Download started", 3000, Notification.Position.BOTTOM_START);
             progressBar.setVisible(true);
@@ -48,8 +49,8 @@ InputStreamDownloadHandler handler = DownloadHandler.fromInputStream(event -> ne
         .whenComplete(success -> {
             progressBar.setVisible(false);
             if (success) {
-                Notification.show("Download completed", 3000, Notification.Position.BOTTOM_START).addThemeVariants(
-                        NotificationVariant.LUMO_SUCCESS);
+                Notification.show("Download completed", 3000, Notification.Position.BOTTOM_START)
+                    .addThemeVariants(NotificationVariant.LUMO_SUCCESS);
             } else {
                 Notification.show("Download failed", 3000, Notification.Position.BOTTOM_START)
                         .addThemeVariants(NotificationVariant.LUMO_ERROR);
@@ -85,39 +86,43 @@ InputStreamDownloadHandler handler = DownloadHandler.fromInputStream(event -> ne
 
         Card card2 = createCodeSnippetFor("Downloads", "Use shortcut methods for download progress listening",
                 """
-InputStreamDownloadHandler handler = DownloadHandler.fromInputStream(event -> new DownloadResponse(
-                        getSlowInputStream(), "slow-download.bin", "application/octet-stream", SLOW_CONTENT_SIZE), // 10 MB
-                "slow-download.bin", new TransferProgressListener() {
-                    @Override
-                    public void onStart(TransferContext context) {
-                        Notification.show("Download started", 3000, Notification.Position.BOTTOM_START);
-                        progressBar.setVisible(true);
-                    }
-
-                    @Override
-                    public void onProgress(TransferContext context, long transferredBytes, long totalBytes) {
-                        progressBar.setValue((double) transferredBytes / SLOW_CONTENT_SIZE);
-                    }
-
-                    @Override
-                    public void onError(TransferContext context, IOException reason) {
-                        progressBar.setVisible(false);
-                        Notification.show("Download completed", 3000, Notification.Position.BOTTOM_START).addThemeVariants(
-                                NotificationVariant.LUMO_SUCCESS);
-                    }
-
-                    @Override
-                    public void onComplete(TransferContext context, long transferredBytes) {
-                        progressBar.setVisible(false);
-                        Notification.show("Download failed", 3000, Notification.Position.BOTTOM_START)
-                                .addThemeVariants(NotificationVariant.LUMO_ERROR);
-                    }
-
-                    @Override
-                    public long progressReportInterval() {
-                        return 1024 * 1024 * 2; // 2 MB
-                    }
-                });""");
+InputStreamDownloadHandler handler = DownloadHandler.fromInputStream(event ->
+                    new DownloadResponse(getSlowInputStream(), "slow-download.bin",
+                        "application/octet-stream", SLOW_CONTENT_SIZE), // 10 MB
+                            "slow-download.bin", new TransferProgressListener() {
+          @Override
+          public void onStart(TransferContext context) {
+              Notification.show("Download started for file " + context.fileName(),
+                      3000, Notification.Position.BOTTOM_START);
+              progressBar.setVisible(true);
+         
+          @Override
+          public void onProgress(TransferContext context, long transferredBytes,
+                                     long totalBytes) {
+              progressBar.setValue((double) transferredBytes / SLOW_CONTENT_SIZE);
+          }
+          
+          @Override
+          public void onError(TransferContext context, IOException reason) {
+              progressBar.setVisible(false);
+              Notification.show("Download failed, reason: " + reason.getMessage(),
+                      3000, Notification.Position.BOTTOM_START).addThemeVariants(
+                              NotificationVariant.LUMO_SUCCESS);
+          }
+          
+          @Override
+          public void onComplete(TransferContext context, long transferredBytes) {
+              progressBar.setVisible(false);
+              Notification.show("Download completed, total bytes " + transferredBytes,
+                              3000, Notification.Position.BOTTOM_START)
+                      .addThemeVariants(NotificationVariant.LUMO_ERROR);
+         }
+         
+         @Override
+         public long progressReportInterval() {
+             return 1024 * 1024 * 2; // 2 MB
+         }
+});""");
         ProgressBar progressBar2 = new ProgressBar();
         progressBar2.setVisible(false);
         progressBar2.setWidth("80%");
@@ -127,7 +132,8 @@ InputStreamDownloadHandler handler = DownloadHandler.fromInputStream(event -> ne
                 "slow-download.bin", new TransferProgressListener() {
                     @Override
                     public void onStart(TransferContext context) {
-                        Notification.show("Download started", 3000, Notification.Position.BOTTOM_START);
+                        Notification.show("Download started for file " + context.fileName(),
+                                3000, Notification.Position.BOTTOM_START);
                         progressBar2.setVisible(true);
                     }
 
@@ -139,14 +145,16 @@ InputStreamDownloadHandler handler = DownloadHandler.fromInputStream(event -> ne
                     @Override
                     public void onError(TransferContext context, IOException reason) {
                         progressBar2.setVisible(false);
-                        Notification.show("Download completed", 3000, Notification.Position.BOTTOM_START).addThemeVariants(
-                                NotificationVariant.LUMO_SUCCESS);
+                        Notification.show("Download failed, reason: " + reason.getMessage(),
+                                3000, Notification.Position.BOTTOM_START).addThemeVariants(
+                                        NotificationVariant.LUMO_SUCCESS);
                     }
 
                     @Override
                     public void onComplete(TransferContext context, long transferredBytes) {
                         progressBar2.setVisible(false);
-                        Notification.show("Download failed", 3000, Notification.Position.BOTTOM_START)
+                        Notification.show("Download completed, total bytes " + transferredBytes,
+                                        3000, Notification.Position.BOTTOM_START)
                                 .addThemeVariants(NotificationVariant.LUMO_ERROR);
                     }
 
