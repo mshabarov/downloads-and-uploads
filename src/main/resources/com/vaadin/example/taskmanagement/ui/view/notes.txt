@@ -1,5 +1,5 @@
 ﻿Follow up with the client regarding the requirements.
 Prepare a presentation for the upcoming sprint review.
 Update the documentation for the new feature.
-"Investigate the reported bug in the payment module.
+Investigate the reported bug in the payment module.
 Schedule a meeting with the design team for feedback.
