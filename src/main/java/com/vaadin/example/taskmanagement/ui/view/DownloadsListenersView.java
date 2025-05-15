@@ -107,7 +107,7 @@ InputStreamDownloadHandler handler = DownloadHandler.fromInputStream(event ->
               progressBar.setVisible(false);
               Notification.show("Download failed, reason: " + reason.getMessage(),
                       3000, Notification.Position.BOTTOM_START).addThemeVariants(
-                              NotificationVariant.LUMO_SUCCESS);
+                              NotificationVariant.LUMO_ERROR);
           }
           
           @Override
@@ -115,7 +115,7 @@ InputStreamDownloadHandler handler = DownloadHandler.fromInputStream(event ->
               progressBar.setVisible(false);
               Notification.show("Download completed, total bytes " + transferredBytes,
                               3000, Notification.Position.BOTTOM_START)
-                      .addThemeVariants(NotificationVariant.LUMO_ERROR);
+                      .addThemeVariants(NotificationVariant.LUMO_SUCCESS);
          }
          
          @Override
@@ -147,7 +147,7 @@ InputStreamDownloadHandler handler = DownloadHandler.fromInputStream(event ->
                         progressBar2.setVisible(false);
                         Notification.show("Download failed, reason: " + reason.getMessage(),
                                 3000, Notification.Position.BOTTOM_START).addThemeVariants(
-                                        NotificationVariant.LUMO_SUCCESS);
+                                        NotificationVariant.LUMO_ERROR);
                     }
 
                     @Override
@@ -155,7 +155,7 @@ InputStreamDownloadHandler handler = DownloadHandler.fromInputStream(event ->
                         progressBar2.setVisible(false);
                         Notification.show("Download completed, total bytes " + transferredBytes,
                                         3000, Notification.Position.BOTTOM_START)
-                                .addThemeVariants(NotificationVariant.LUMO_ERROR);
+                                .addThemeVariants(NotificationVariant.LUMO_SUCCESS);
                     }
 
                     @Override

@@ -1,12 +1,9 @@
 package com.vaadin.example.taskmanagement.ui.view;
 
-import java.io.ByteArrayInputStream;
 import java.io.IOException;
-import java.io.InputStream;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 import java.util.Base64;
-import java.util.concurrent.atomic.AtomicInteger;
 import java.util.concurrent.atomic.AtomicLong;
 
 import com.flowingcode.vaadin.addons.syntaxhighlighter.ShLanguage;
@@ -19,17 +16,11 @@ import com.vaadin.flow.component.card.CardVariant;
 import com.vaadin.flow.component.html.Anchor;
 import com.vaadin.flow.component.html.Div;
 import com.vaadin.flow.component.notification.Notification;
-import com.vaadin.flow.component.notification.NotificationVariant;
 import com.vaadin.flow.component.orderedlayout.VerticalLayout;
-import com.vaadin.flow.component.progressbar.ProgressBar;
 import com.vaadin.flow.router.Menu;
 import com.vaadin.flow.router.PageTitle;
 import com.vaadin.flow.router.Route;
 import com.vaadin.flow.server.streams.DownloadHandler;
-import com.vaadin.flow.server.streams.DownloadResponse;
-import com.vaadin.flow.server.streams.InputStreamDownloadHandler;
-import com.vaadin.flow.server.streams.TransferContext;
-import com.vaadin.flow.server.streams.TransferProgressListener;
 
 
 @Route("download-custom")
@@ -72,7 +63,7 @@ LinkWithM5Validation link = new LinkWithM5Validation(event -> {
                         """);
 
 
-        LinkWithM5Validation link = new LinkWithM5Validation(event -> {
+        LinkWithMD5Validation link = new LinkWithMD5Validation(event -> {
             try {
                 var data = loadFileFromS3(event.getFileName(), event.getContentType());
                 MessageDigest md5 = MessageDigest.getInstance("MD5");
@@ -122,8 +113,8 @@ LinkWithM5Validation link = new LinkWithM5Validation(event -> {
         return card;
     }
 
-    private static class LinkWithM5Validation extends Anchor {
-        public LinkWithM5Validation(DownloadHandler downloadHandler, String text) {
+    private static class LinkWithMD5Validation extends Anchor {
+        public LinkWithMD5Validation(DownloadHandler downloadHandler, String text) {
             super(downloadHandler, text);
         }
 
