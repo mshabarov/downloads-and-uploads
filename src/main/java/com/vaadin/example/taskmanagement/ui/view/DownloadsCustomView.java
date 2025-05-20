@@ -63,9 +63,13 @@ LinkWithM5Validation link = new LinkWithM5Validation(event -> {
                         """);
 
 
+        var fileName = "sources.zip";
+        var contentType = "application/zip";
         LinkWithMD5Validation link = new LinkWithMD5Validation(event -> {
             try {
-                var data = loadFileFromS3(event.getFileName(), event.getContentType());
+                event.setFileName(fileName);
+                event.setContentType(contentType);
+                var data = loadFileFromS3(fileName, contentType);
                 MessageDigest md5 = MessageDigest.getInstance("MD5");
                 byte[] digest = md5.digest(data);
                 String base64Md5 = Base64.getEncoder().encodeToString(digest);
@@ -76,7 +80,7 @@ LinkWithM5Validation link = new LinkWithM5Validation(event -> {
                             numberOfDownloads.incrementAndGet()));
                 event.getSession().lock();
                 try {
-                    event.getSession().setAttribute("downloads-number-" + event.getFileName(),
+                    event.getSession().setAttribute("downloads-number-" + fileName,
                             numberOfDownloads.get());
                 } finally {
                     event.getSession().unlock();

@@ -77,7 +77,7 @@ Anchor downloadLink = new Anchor(new DownloadHandler() {
             }
 
             @Override
-            public boolean allowInert() {
+            public boolean isAllowInert() {
                 return inertToggle.getValue();
             }
 
