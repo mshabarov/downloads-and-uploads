@@ -1,8 +1,5 @@
 package com.vaadin.example.taskmanagement.ui.view;
 
-import java.io.ByteArrayInputStream;
-import java.io.InputStream;
-
 import jakarta.annotation.security.PermitAll;
 
 import com.vaadin.flow.component.html.H4;
@@ -15,11 +12,9 @@ import com.vaadin.flow.router.Route;
 
 @Route("upload-listeners")
 @PageTitle("Upload Listeners")
-@Menu(order = 1, icon = "vaadin:cloud-upload-o", title = "Upload Listeners")
+@Menu(order = 3, icon = "vaadin:cloud-upload-o", title = "Upload Listeners")
 @PermitAll
 public class UploadListenersView extends VerticalLayout {
-
-    private static final int SLOW_CONTENT_SIZE = 1024 * 1024 * 10; // 10 MB
 
     public UploadListenersView() {
         add(new H4("Show the progress of the upload"));
