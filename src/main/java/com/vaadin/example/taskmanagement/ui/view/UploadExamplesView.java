@@ -34,7 +34,7 @@ public class UploadExamplesView extends VerticalLayout {
         // put your code here...
 
         add(new H4("Create a custom handler for receiving upload"));
-        // Step 4: Generate a UploadHandler for receiving data from the client
+        // Step 4: Generate a custom handler to receive data as a String and show it in a TextArea
 
         // put your code here...
     }

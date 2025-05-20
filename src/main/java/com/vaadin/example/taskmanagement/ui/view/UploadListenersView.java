@@ -16,6 +16,9 @@ import com.vaadin.flow.router.Route;
 @PermitAll
 public class UploadListenersView extends VerticalLayout {
 
+    // Use a large file or modulate a slow network in the
+    // browser dev tools to see update of progress
+
     public UploadListenersView() {
         add(new H4("Show the progress of the upload"));
         // Step 1: Use the progress bar to show the upload of the data.
