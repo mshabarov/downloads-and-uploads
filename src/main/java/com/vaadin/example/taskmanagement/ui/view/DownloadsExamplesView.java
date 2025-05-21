@@ -29,26 +29,13 @@ import com.vaadin.flow.router.Route;
 public class DownloadsExamplesView extends VerticalLayout {
 
     public DownloadsExamplesView(AttachmentRepository attachmentRepository, TaskService taskService) {
-        add(new H4("Render an image from classpath resource"));
-        // Step 1: Render the image "vaadin.jpeg" from the classpath on this view.
-
-        // put your code here...
-
-        add(new H4("Download a file from file system"));
-        // Step 2: Download the file "terms-of-service.md" that is at the root of this project.
-
-        // put your code here...
-
-        add(new H4("Download a given attachment as text file"));
-        // Step 3: Download the content of this attachment in a file.
-        //         Set the file name format as "attachment-{id}.txt"
-        long attachmentId = getAttachmentId();
-        Attachment attachment = attachmentRepository.findById(attachmentId);
+        add(new H4("Render a document from classpath resource in a IFrame"));
+        // Step 1: Render a document from classpath resource in a IFrame
 
         // put your code here...
 
         add(new H4("Download the task list as CSV"));
-        // Step 4: Pre-requisite: Add a task on the Task List view.
+        // Step 2: Pre-requisite: Add a task on the Task List view.
         //         Test: Download the tasks as CSV using the pre-made code snippet below.
         //         You need to choose OutputStream to write data to.
         //         (Then run this code snippet when user triggers the download.)
