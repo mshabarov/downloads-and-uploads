@@ -82,11 +82,12 @@ var downloadAttachment = new Anchor(DownloadHandler.fromInputStream((event) -> {
             try {
                 Attachment attachment = attachmentRepository.findById(attachmentId);
                 return new DownloadResponse(attachment.getData().getBinaryStream(),
-                        attachment.getName(), attachment.getMime(), attachment.getSize());
+                        "task-attachment-" + attachmentId + ".txt", attachment.getMime(),
+                            attachment.getSize());
             } catch (Exception e) {
                 return DownloadResponse.error(500);
             }
-        }, "task-attachment-" + attachmentId + ".txt"), "Download task attachment");
+        }), "Download task attachment");
         card.addToFooter(downloadAttachment);
 
         card = createCodeSnippetFor("Downloads", "Download CSV file",

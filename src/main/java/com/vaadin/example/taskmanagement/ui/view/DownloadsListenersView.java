@@ -89,7 +89,7 @@ InputStreamDownloadHandler handler = DownloadHandler.fromInputStream(event ->
 InputStreamDownloadHandler handler = DownloadHandler.fromInputStream(event ->
                     new DownloadResponse(getSlowInputStream(), "slow-download.bin",
                         "application/octet-stream", SLOW_CONTENT_SIZE), // 10 MB
-                            "slow-download.bin", new TransferProgressListener() {
+                            new TransferProgressListener() {
           @Override
           public void onStart(TransferContext context) {
               Notification.show("Download started for file " + context.fileName(),
@@ -129,7 +129,7 @@ InputStreamDownloadHandler handler = DownloadHandler.fromInputStream(event ->
 
         InputStreamDownloadHandler handler2 = DownloadHandler.fromInputStream(event -> new DownloadResponse(
                         getSlowInputStream(), "slow-download.bin", "application/octet-stream", SLOW_CONTENT_SIZE),
-                "slow-download.bin", new TransferProgressListener() {
+                new TransferProgressListener() {
                     @Override
                     public void onStart(TransferContext context) {
                         Notification.show("Download started for file " + context.fileName(),
